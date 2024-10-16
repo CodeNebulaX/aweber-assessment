@@ -9,6 +9,33 @@ import {
   containsUppercase,
 } from "../../utils/string";
 
+const getPasswordRequirements = (password: string, confirmPassword: string) => [
+  {
+    isValid: password.length >= 6,
+    label: "Must be at least 6 characters long",
+  },
+  {
+    isValid: containsUppercase(password),
+    label: "Must include at least one uppercase letter (A-Z)",
+  },
+  {
+    isValid: containsLowercase(password),
+    label: "Must include at least one lowercase letter (a-z)",
+  },
+  {
+    isValid: containsNumber(password),
+    label: "Must include at least one number (0-9)",
+  },
+  {
+    isValid: containsSpecialCharacter(password),
+    label: "Must include at least one special character",
+  },
+  {
+    isValid: !!password && password === confirmPassword,
+    label: "Passwords must match",
+  },
+];
+
 const PasswordEntry = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -32,32 +59,7 @@ const PasswordEntry = () => {
   };
 
   const passwordRequirements = useMemo(
-    () => [
-      {
-        isValid: password.length >= 6,
-        label: "Must be at least 6 characters long",
-      },
-      {
-        isValid: containsUppercase(password),
-        label: "Must include at least one uppercase letter (A-Z)",
-      },
-      {
-        isValid: containsLowercase(password),
-        label: "Must include at least one lowercase letter (a-z)",
-      },
-      {
-        isValid: containsNumber(password),
-        label: "Must include at least one number (0-9)",
-      },
-      {
-        isValid: containsSpecialCharacter(password),
-        label: "Must include at least one special character",
-      },
-      {
-        isValid: !!password && password === confirmPassword,
-        label: "Passwords must match",
-      },
-    ],
+    () => getPasswordRequirements(password, confirmPassword),
     [confirmPassword, password]
   );
 
@@ -91,7 +93,10 @@ const PasswordEntry = () => {
       {isSubmitted && (
         <div>
           {isPasswordValid ? (
-            <span className="password-entry-validation--success">
+            <span
+              className="password-entry-validation--success"
+              aria-live="polite"
+            >
               Your password looks great! All requirements are met.
             </span>
           ) : (
